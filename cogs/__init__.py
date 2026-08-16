@@ -52,6 +52,7 @@ from .commands.qr import QR
 from .commands.vanityroles import VanityRoles
 from .commands.reactionroles import ReactionRoles
 from .commands.fastgreet import FastGreet
+from .commands.counting import Counting
 from .commands.partner_system import PartnerSystem
 from .commands.external_notifications import ExternalNotifications
 from .commands.dashboard_system import DashboardSystem
@@ -269,7 +270,6 @@ async def setup(bot: zyrox):
   await bot.add_cog(_vanity(bot))
   await bot.add_cog(inviteTracker(bot))
   await bot.add_cog(Counting(bot))
-  await bot.add_cog(_Counting(bot))
   await bot.add_cog(_J2C(bot))
   await bot.add_cog(_ai(bot))
   await bot.add_cog(__boost(bot))
