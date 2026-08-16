@@ -1,24 +1,64 @@
 from __future__ import annotations
 import asyncio
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Dict, Optional, List
 import discord
 from discord.ext import commands
-from discord.ext import menus
 from discord.ext.commands import Context
 from discord import Interaction, ButtonStyle
+
+
+# Simple PageSource replacement since discord.ext.menus is deprecated
+class PageSource:
+    """Simple replacement for menus.PageSource"""
+    def __init__(self, data: List[Any], per_page: int = 10):
+        self.data = data
+        self.per_page = per_page
+        self._prepared = False
+
+    def is_paginating(self) -> bool:
+        return len(self.data) > self.per_page
+
+    def get_max_pages(self) -> int:
+        return (len(self.data) + self.per_page - 1) // self.per_page
+
+    async def get_page(self, page_number: int) -> List[Any]:
+        start = page_number * self.per_page
+        end = start + self.per_page
+        return self.data[start:end]
+
+    async def format_page(self, menu: 'Paginator', page: List[Any]) -> discord.Embed:
+        # Default format - can be overridden
+        embed = discord.Embed(title="Page", description=str(page))
+        return embed
+
+    async def _prepare_once(self):
+        if not self._prepared:
+            self._prepared = True
+
+
+class ListPageSource(PageSource):
+    """List-based page source"""
+    def __init__(self, entries: List[Any], per_page: int = 10):
+        super().__init__(entries, per_page)
+        self.entries = entries
+
+    async def get_page(self, page_number: int) -> List[Any]:
+        start = page_number * self.per_page
+        end = start + self.per_page
+        return self.entries[start:end]
 
 
 class Paginator(discord.ui.View):
 
     def __init__(
         self,
-        source: menus.PageSource,
+        source: PageSource,
         *,
         ctx: Context | Interaction,
         check_embeds: bool = True,
     ):
         super().__init__()
-        self.source: menus.PageSource = source
+        self.source: PageSource = source
         self.check_embeds: bool = check_embeds
         self.ctx = ctx
         self.message: Optional[discord.Message] = None
