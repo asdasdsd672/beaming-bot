@@ -61,18 +61,18 @@ class ReactionRoles(commands.Cog):
                 
                 for message_id, message_type in messages:
                     if message_type == "button":
-                        view = self.create_button_view(message_id)
+                        view = await self.create_button_view(message_id)
                         if view:
                             self.bot.add_view(view, message_id=message_id)
                     elif message_type == "dropdown":
-                        view = self.create_dropdown_view(message_id)
+                        view = await self.create_dropdown_view(message_id)
                         if view:
                             self.bot.add_view(view, message_id=message_id)
                             
         except Exception as e:
             print(f"Error loading persistent views: {e}")
 
-    def create_button_view(self, message_id):
+    async def create_button_view(self, message_id):
         """Create a button view for reaction roles"""
         try:
             async with aiosqlite.connect(self.db_path) as db:
@@ -103,7 +103,7 @@ class ReactionRoles(commands.Cog):
             print(f"Error creating button view: {e}")
             return None
 
-    def create_dropdown_view(self, message_id):
+    async def create_dropdown_view(self, message_id):
         """Create a dropdown view for reaction roles"""
         try:
             async with aiosqlite.connect(self.db_path) as db:

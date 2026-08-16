@@ -50,41 +50,7 @@ from .commands.filters import FilterCog
 from .commands.owner2 import Global
 from .commands.qr import QR
 from .commands.vanityroles import VanityRoles
-from .commands.reactionroles import ReactionRoles 
-from .commands.messages import Messages
-from .commands.fastgreet import FastGreet
-from .commands.counting import Counting
-from .commands.j2c import JoinToCreate
-from .commands.ai import AI 
-from .commands.dms import StaffDMCog
-from .commands.booster import Booster
-from .commands.leveling import Leveling
-from .commands.stickymessage import StickyMessage
-from .commands.verification import Verification
-from .commands.minecraft import Minecraft
-from .commands.encryption import encryption
-from .commands.calc import calculator
-from .commands.joindm import joindm
-from .commands.Birthday import Birthdays
-from .commands.nitro import Nitro
-from .commands.image import ImageCommands
-from .commands.youtube import Youtube
-from .commands.application import Application
-from .commands.suggestions import Suggestions
-from .commands.polls import Polls
-from .commands.strike_system import StrikeSystem
-from .commands.ai_enhanced import EnhancedAI
-from .commands.ai_voice import AIVoice
-from .commands.ai_suggestions import AISuggestions
-from .commands.ai_roleplay import AIRoleplay
-from .commands.dynamic_status import DynamicStatus
-from .commands.role_permissions import RolePermissions
-from .commands.cookie_giveaway import CookieGiveaway
-from .commands.leave_system import LeaveSystem
-from .commands.vouch_system import VouchSystem
-from .commands.booster_system import BoosterSystem
-from .commands.welcome_goodbye import WelcomeGoodbye
-from .commands.reaction_roles import ReactionRoles
+from .commands.reactionroles import ReactionRoles
 from .commands.partner_system import PartnerSystem
 from .commands.external_notifications import ExternalNotifications
 from .commands.dashboard_system import DashboardSystem
@@ -201,7 +167,7 @@ async def setup(bot: zyrox):
         AntiChannelCreate, AntiChannelDelete, AntiChannelUpdate, AntiEveryone, AntiGuildUpdate,
         AntiIntegration, AntiKick, AntiPrune, AntiRoleCreate, AntiRoleDelete,
         AntiRoleUpdate, AntiWebhookUpdate, AntiWebhookCreate, 
-        AntiWebhookDelete, AntiSpam, AntiCaps, AntiLink, AntiInvite, AntiMassMention, Stats, Status, NoPrefix, FilterCog, AutoReaction, AutoReactListener, Ban, Unban, Mute, Unmute, Lock, Unlock, Hide, Unhide, Kick, Warn, Role, Message, Moderation, TopCheck, Snipe, Global, QR, VanityRoles, ReactionRoles, Messages, TranslateCog, FastGreet, Jail, inviteTracker,Counting,AI, Application, Suggestions, Polls, StrikeSystem, EnhancedAI, AIVoice, AISuggestions, AIRoleplay, DynamicStatus, RolePermissions, CookieGiveaway, LeaveSystem, VouchSystem, BoosterSystem, WelcomeGoodbye, ReactionRoles, PartnerSystem, ExternalNotifications, DashboardSystem, AdvancedEmbeds
+        AntiWebhookDelete, AntiSpam, AntiCaps, AntiLink, AntiInvite, AntiMassMention, Stats, Status, NoPrefix, FilterCog, AutoReaction, AutoReactListener, Ban, Unban, Mute, Unmute, Lock, Unlock, Hide, Unhide, Kick, Warn, Role, Message, Moderation, TopCheck, Snipe, Global, QR, VanityRoles, ReactionRoles, TranslateCog, FastGreet, Jail, inviteTracker,Counting,AI, Application, Suggestions, Polls, StrikeSystem, EnhancedAI, AIVoice, AISuggestions, AIRoleplay, DynamicStatus, RolePermissions, CookieGiveaway, LeaveSystem, VouchSystem, BoosterSystem, WelcomeGoodbye, PartnerSystem, ExternalNotifications, DashboardSystem, AdvancedEmbeds
     ]
 
 
@@ -248,11 +214,9 @@ async def setup(bot: zyrox):
   await bot.add_cog(QR(bot))
   await bot.add_cog(VanityRoles(bot))
   await bot.add_cog(ReactionRoles(bot))
-  await bot.add_cog(Messages(bot))
   await bot.add_cog(TranslateCog(bot))
   await bot.add_cog(FastGreet(bot))
   await bot.add_cog(Jail(bot))
-  await bot.add_cog(JoinToCreate(bot))
   await bot.add_cog(AI(bot))
   await bot.add_cog(StaffDMCog(bot))
   await bot.add_cog(Leveling(bot))
@@ -281,7 +245,6 @@ async def setup(bot: zyrox):
   await bot.add_cog(VouchSystem(bot))
   await bot.add_cog(BoosterSystem(bot))
   await bot.add_cog(WelcomeGoodbye(bot))
-  await bot.add_cog(ReactionRoles(bot))
   await bot.add_cog(PartnerSystem(bot))
   await bot.add_cog(ExternalNotifications(bot))
   await bot.add_cog(DashboardSystem(bot))
