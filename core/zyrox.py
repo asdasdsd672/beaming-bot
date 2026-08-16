@@ -97,9 +97,16 @@ class zyrox(commands.AutoShardedBot):
     async def get_prefix(self, message: discord.Message):
         if message.guild:
             guild_id = message.guild.id
-            async with aiosqlite.connect('db/np.db') as db:
-                async with db.execute("SELECT id FROM np WHERE id = ?", (message.author.id,)) as cursor:
-                    row = await cursor.fetchone()
+            try:
+                async with aiosqlite.connect('db/np.db') as db:
+                    async with db.execute("SELECT id FROM np WHERE id = ?", (message.author.id,)) as cursor:
+                        row = await cursor.fetchone()
+            except aiosqlite.OperationalError:
+                # Table doesn't exist yet, create it
+                async with aiosqlite.connect('db/np.db') as db:
+                    await db.execute("CREATE TABLE IF NOT EXISTS np (id INTEGER PRIMARY KEY)")
+                    await db.commit()
+                row = None
             data = await getConfig(guild_id)
             prefix = data["prefix"]
             if row:
@@ -107,9 +114,16 @@ class zyrox(commands.AutoShardedBot):
             else:
                 return commands.when_mentioned_or(prefix)(self, message)
         else:
-            async with aiosqlite.connect('db/np.db') as db:
-                async with db.execute("SELECT id FROM np WHERE id = ?", (message.author.id,)) as cursor:
-                    row = await cursor.fetchone()
+            try:
+                async with aiosqlite.connect('db/np.db') as db:
+                    async with db.execute("SELECT id FROM np WHERE id = ?", (message.author.id,)) as cursor:
+                        row = await cursor.fetchone()
+            except aiosqlite.OperationalError:
+                # Table doesn't exist yet, create it
+                async with aiosqlite.connect('db/np.db') as db:
+                    await db.execute("CREATE TABLE IF NOT EXISTS np (id INTEGER PRIMARY KEY)")
+                    await db.commit()
+                row = None
             if row:
                 return commands.when_mentioned_or('?', '')(self, message)
             else:

@@ -51,6 +51,7 @@ from .commands.owner2 import Global
 from .commands.qr import QR
 from .commands.vanityroles import VanityRoles
 from .commands.reactionroles import ReactionRoles
+from .commands.fastgreet import FastGreet
 from .commands.partner_system import PartnerSystem
 from .commands.external_notifications import ExternalNotifications
 from .commands.dashboard_system import DashboardSystem
