@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ profile[1] }} - Profile</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f6fa;
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .navbar h1 {
+            font-size: 1.5rem;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 2rem;
+            transition: opacity 0.3s;
+        }
+        
+        .nav-links a:hover {
+            opacity: 0.8;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .profile-header {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        {% if profile[5] %}
+        .profile-banner {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 15px 15px 0 0;
+            margin: -3rem -3rem 2rem -3rem;
+        }
+        {% endif %}
+        
+        .profile-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid #667eea;
+            margin-bottom: 1.5rem;
+        }
+        
+        .profile-info h2 {
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+        }
+        
+        .profile-info p {
+            color: #666;
+            margin-bottom: 1.5rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .stat-card h3 {
+            color: #667eea;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-card p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .section h3 {
+            color: #333;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .social-link {
+            padding: 12px 25px;
+            background: #f0f0f0;
+            border-radius: 25px;
+            text-decoration: none;
+            color: #333;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .social-link:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .achievements {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+        
+        .achievement {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        
+        .achievement:hover {
+            transform: translateY(-5px);
+        }
+        
+        .achievement-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .back-link {
+            text-align: center;
+            margin-top: 2rem;
+        }
+        
+        .back-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <h1>🚀 Beaming Bot</h1>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/leaderboard">Leaderboard</a>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="profile-header">
+            {% if profile[5] %}
+            <img src="{{ profile[5] }}" alt="Banner" class="profile-banner">
+            {% endif %}
+            
+            <img src="{{ profile[3] }}" alt="Avatar" class="profile-avatar">
+            
+            <div class="profile-info">
+                <h2>{{ profile[1] }}#{{ profile[2] }}</h2>
+                <p>{{ profile[4] or 'No bio set' }}</p>
+                <div style="display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap;">
+                    <span>📊 Level {{ profile[7] }}</span>
+                    <span>⭐ {{ profile[6] }} XP</span>
+                    <span>💰 {{ profile[8] }} Coins</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>{{ stats[1] }}</h3>
+                <p>Messages Sent</p>
+            </div>
+            <div class="stat-card">
+                <h3>{{ stats[2] }}m</h3>
+                <p>Voice Time</p>
+            </div>
+            <div class="stat-card">
+                <h3>{{ stats[3] }}</h3>
+                <p>Commands Used</p>
+            </div>
+            <div class="stat-card">
+                <h3>{{ stats[4] }}</h3>
+                <p>Tickets Created</p>
+            </div>
+            <div class="stat-card">
+                <h3>{{ stats[5] }}</h3>
+                <p>Applications</p>
+            </div>
+            <div class="stat-card">
+                <h3>{{ stats[10] }}</h3>
+                <p>Reputation</p>
+            </div>
+        </div>
+        
+        {% if social %}
+        <div class="section">
+            <h3>🔗 Social Connections</h3>
+            <div class="social-links">
+                {% if social[1] %}
+                <a href="{{ social[1] }}" class="social-link">📺 YouTube</a>
+                {% endif %}
+                {% if social[2] %}
+                <a href="{{ social[2] }}" class="social-link">🐦 Twitter</a>
+                {% endif %}
+                {% if social[3] %}
+                <a href="{{ social[3] }}" class="social-link">📷 Instagram</a>
+                {% endif %}
+                {% if social[4] %}
+                <a href="{{ social[4] }}" class="social-link">💻 GitHub</a>
+                {% endif %}
+                {% if social[5] %}
+                <a href="{{ social[5] }}" class="social-link">🌐 Website</a>
+                {% endif %}
+                {% if social[6] %}
+                <a href="{{ social[6] }}" class="social-link">💬 Discord</a>
+                {% endif %}
+                {% if social[7] %}
+                <a href="{{ social[7] }}" class="social-link">📺 Twitch</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if achievements %}
+        <div class="section">
+            <h3>🏆 Recent Achievements</h3>
+            <div class="achievements">
+                {% for achievement in achievements %}
+                <div class="achievement">
+                    <div class="achievement-icon">{{ achievement[2] or '🏆' }}</div>
+                    <h4>{{ achievement[0] }}</h4>
+                    <p>{{ achievement[1] }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="back-link">
+            <a href="/">← Back to Home</a>
+        </div>
+    </div>
+</body>
+</html>

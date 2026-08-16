@@ -1,0 +1,36 @@
+[
+  {
+    "timestamp": "2026-08-09T05:26:00.653302",
+    "category": "member_moderation",
+    "guild_id": 1531279577933021386,
+    "channel_id": null,
+    "author_id": 1531440850956193952,
+    "embed_data": {
+      "footer": {
+        "text": "User ID: 1531440850956193952"
+      },
+      "author": {
+        "name": "BEZM BOT",
+        "icon_url": "https://cdn.discordapp.com/avatars/1531440850956193952/0d3e3126547c1a9994023d3ee2688888.png?size=1024"
+      },
+      "fields": [
+        {
+          "inline": true,
+          "name": "User",
+          "value": "<@1531440850956193952>"
+        },
+        {
+          "inline": false,
+          "name": "Roles Added",
+          "value": "<@&1535881813921243281>"
+        }
+      ],
+      "flags": 0,
+      "color": 16711680,
+      "timestamp": "2026-08-09T02:26:00.261360+00:00",
+      "type": "rich",
+      "title": "Member Roles Updated"
+    },
+    "message_id": 1535881816894865470
+  }
+]
