@@ -466,44 +466,6 @@ class DashboardSystem(commands.Cog):
         
         await ctx.send(embed=embed)
 
-    @profile.command(name="rank", description="📊 View your rank")
-    async def view_rank(self, ctx: commands.Context):
-        """View your rank on each server"""
-        async with aiosqlite.connect(self.db_path) as db:
-            cursor = await db.execute(
-                "SELECT user_id, xp FROM user_profiles ORDER BY xp DESC"
-            )
-            all_users = await cursor.fetchall()
-            
-            user_rank = None
-            for i, (user_id, xp) in enumerate(all_users):
-                if user_id == ctx.author.id:
-                    user_rank = i + 1
-                    break
-        
-        if user_rank:
-            embed = discord.Embed(
-                title="📊 Your Global Rank",
-                description=f"You are ranked **#{user_rank}** out of **{len(all_users)}** users!",
-                color=0x00ff00,
-                timestamp=datetime.now(timezone.utc)
-            )
-            
-            # Show top 10
-            top_users = all_users[:10]
-            top_text = ""
-            for i, (user_id, xp) in enumerate(top_users):
-                user = self.bot.get_user(user_id)
-                user_name = user.name if user else f"Unknown ({user_id})"
-                medal = ["🥇", "🥈", "🥉"][i] if i < 3 else f"#{i+1}"
-                top_text += f"{medal} **{user_name}**: {xp} XP\n"
-            
-            embed.add_field(name="🏆 Top 10", value=top_text, inline=False)
-            
-            await ctx.send(embed=embed)
-        else:
-            await ctx.send("You don't have a profile yet. Use `>profile show` to create one.")
-
     @profile.command(name="banner", description="🖼️ Set your profile banner")
     async def set_banner(self, ctx: commands.Context, url: str):
         """Set your profile banner"""
@@ -521,30 +483,6 @@ class DashboardSystem(commands.Cog):
             timestamp=datetime.now(timezone.utc)
         )
         embed.set_image(url=url)
-        
-        await ctx.send(embed=embed)
-
-    @profile.command(name="badges", description="🎖️ Set your custom badges")
-    async def set_badges(self, ctx: commands.Context, *, badges: str):
-        """Set your custom badges (emoji separated by spaces)"""
-        badge_list = badges.split()
-        if len(badge_list) > 10:
-            return await ctx.send("You can only have up to 10 badges.")
-        
-        async with aiosqlite.connect(self.db_path) as db:
-            await db.execute(
-                "UPDATE user_profiles SET custom_badges = ?, last_updated = ? WHERE user_id = ?",
-                (json.dumps(badge_list), datetime.now(timezone.utc).isoformat(), ctx.author.id)
-            )
-            await db.commit()
-        
-        embed = discord.Embed(
-            title="✅ Badges Updated",
-            description="Your profile badges have been updated!",
-            color=0x00ff00,
-            timestamp=datetime.now(timezone.utc)
-        )
-        embed.add_field(name="Badges", value=" ".join(badge_list), inline=False)
         
         await ctx.send(embed=embed)
 
