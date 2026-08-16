@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Beaming Bot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f6fa;
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .navbar h1 {
+            font-size: 1.5rem;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 2rem;
+            transition: opacity 0.3s;
+        }
+        
+        .nav-links a:hover {
+            opacity: 0.8;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .profile-header {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+        
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #667eea;
+        }
+        
+        .profile-info h2 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .profile-info p {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .stat-card h3 {
+            color: #667eea;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-card p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .section h3 {
+            color: #333;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .social-link {
+            padding: 10px 20px;
+            background: #f0f0f0;
+            border-radius: 25px;
+            text-decoration: none;
+            color: #333;
+            transition: all 0.3s;
+        }
+        
+        .social-link:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .achievements {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+        
+        .achievement {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .achievement-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .rank-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .rank-info h3 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .rank-info p {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <h1>🚀 Beaming Bot</h1>
+        <div class="nav-links">
+            <a href="/dashboard">Dashboard</a>
+            <a href="/leaderboard">Leaderboard</a>
+            <a href="/logout">Logout</a>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="rank-info">
+            <h3>#{{ user_rank }}</h3>
+            <p>Your global rank out of {{ total_users }} users</p>
+        </div>
+        
+        <div class="profile-header">
+            <img src="{{ profile[3] }}" alt="Avatar" class="profile-avatar">
+            <div class="profile-info">
+                <h2>{{ profile[1] }}#{{ profile[2] }}</h2>
+                <p>{{ profile[4] or 'No bio set' }}</p>
+                <div style="display: flex; gap: 1rem;">
+                    <span>📊 Level {{ profile[7] }}</span>
+                    <span>⭐ {{ profile[6] }} XP</span>
+                    <span>💰 {{ profile[8] }} Coins</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>{{ stats[1] }}</h3>
+                <p>Messages Sent</p>
+            </div>
+            <div class="stat-card">
+                <h3>{{ stats[2] }}m</h3>
+                <p>Voice Time</p>
+            </div>
+            <div class="stat-card">
+                <h3>{{ stats[3] }}</h3>
+                <p>Commands Used</p>
+            </div>
+            <div class="stat-card">
+                <h3>{{ stats[10] }}</h3>
+                <p>Reputation</p>
+            </div>
+        </div>
+        
+        {% if social %}
+        <div class="section">
+            <h3>🔗 Social Connections</h3>
+            <div class="social-links">
+                {% if social[1] %}
+                <a href="{{ social[1] }}" class="social-link">📺 YouTube</a>
+                {% endif %}
+                {% if social[2] %}
+                <a href="{{ social[2] }}" class="social-link">🐦 Twitter</a>
+                {% endif %}
+                {% if social[3] %}
+                <a href="{{ social[3] }}" class="social-link">📷 Instagram</a>
+                {% endif %}
+                {% if social[4] %}
+                <a href="{{ social[4] }}" class="social-link">💻 GitHub</a>
+                {% endif %}
+                {% if social[5] %}
+                <a href="{{ social[5] }}" class="social-link">🌐 Website</a>
+                {% endif %}
+                {% if social[6] %}
+                <a href="{{ social[6] }}" class="social-link">💬 Discord</a>
+                {% endif %}
+                {% if social[7] %}
+                <a href="{{ social[7] }}" class="social-link">📺 Twitch</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if achievements %}
+        <div class="section">
+            <h3>🏆 Recent Achievements</h3>
+            <div class="achievements">
+                {% for achievement in achievements %}
+                <div class="achievement">
+                    <div class="achievement-icon">{{ achievement[2] or '🏆' }}</div>
+                    <h4>{{ achievement[0] }}</h4>
+                    <p>{{ achievement[1] }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
