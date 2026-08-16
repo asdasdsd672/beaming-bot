@@ -24,3 +24,4 @@ gtts
 langdetect
 pyttsx3
 pytz
+aiofiles
