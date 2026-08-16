@@ -195,7 +195,7 @@ class DynamicStatus(commands.Cog):
         await ctx.send(embed=embed)
 
     @botstatus.command(name="stats", description="📊 Show bot statistics")
-    async def bot_stats(self, ctx):
+    async def show_stats(self, ctx):
         """Show comprehensive bot statistics"""
         guild_count = len(self.bot.guilds)
         user_count = sum(guild.member_count for guild in self.bot.guilds if guild.member_count)
