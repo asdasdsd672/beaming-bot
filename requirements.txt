@@ -23,3 +23,4 @@ motor
 gtts
 langdetect
 pyttsx3
+pytz
