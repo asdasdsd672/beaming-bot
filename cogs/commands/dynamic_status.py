@@ -159,7 +159,7 @@ class DynamicStatus(commands.Cog):
 
     @botstatus.command(name="remove", description="➖ Remove a status from rotation")
     @commands.has_permissions(administrator=True)
-    async def remove_status(self, ctx,-status_id: int):
+    async def remove_status(self, ctx, status_id: int):
         """Remove a status from rotation by index"""
         if 0 <= status_id < len(self.status_messages):
             removed = self.status_messages.pop(status_id)
