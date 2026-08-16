@@ -62,4 +62,3 @@ node_modules/
 
 # Secrets
 secrets.py
-config.py
