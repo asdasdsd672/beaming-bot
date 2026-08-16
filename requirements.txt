@@ -25,3 +25,4 @@ langdetect
 pyttsx3
 pytz
 aiofiles
+SpeechRecognition
