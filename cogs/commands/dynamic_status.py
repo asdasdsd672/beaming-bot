@@ -224,7 +224,7 @@ class DynamicStatus(commands.Cog):
         await ctx.send(embed=embed)
 
     @botstatus.command(name="info", description="ℹ️ Show bot information")
-    async def bot_info(self, ctx):
+    async def show_info(self, ctx):
         """Show detailed bot information"""
         embed = discord.Embed(
             title=f"ℹ️ {self.server_name} Bot Information",
@@ -246,7 +246,7 @@ class DynamicStatus(commands.Cog):
         await ctx.send(embed=embed)
 
     @botstatus.command(name="invite", description="🔗 Get the bot invite link")
-    async def bot_invite(self, ctx):
+    async def show_invite(self, ctx):
         """Generate and send bot invite link"""
         permissions = discord.Permissions(
             administrator=True,
