@@ -296,14 +296,12 @@ class InviteView(discord.ui.View):
         self.server_invite = server_invite
         self.server_name = server_name
 
-    @discord.ui.button(label="🤖 Invite Bot", style=discord.ButtonStyle.primary, url=None)
+    @discord.ui.button(label="🤖 Invite Bot", style=discord.ButtonStyle.primary)
     async def invite_bot(self, interaction: discord.Interaction, button: discord.ui.Button):
-        button.url = self.bot_invite
         await interaction.response.send_message(f"Bot invite link: {self.bot_invite}", ephemeral=True)
 
-    @discord.ui.button(label="🏠 Join Server", style=discord.ButtonStyle.success, url=None)
+    @discord.ui.button(label="🏠 Join Server", style=discord.ButtonStyle.success)
     async def join_server(self, interaction: discord.Interaction, button: discord.ui.Button):
-        button.url = self.server_invite
         await interaction.response.send_message(f"Server invite link: {self.server_invite}", ephemeral=True)
 
 async def setup(bot):
