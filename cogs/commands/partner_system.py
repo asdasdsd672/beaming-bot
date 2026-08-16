@@ -442,8 +442,9 @@ class PartnerInviteView(View):
         super().__init__(timeout=None)
         self.invite_code = invite_code
 
-    @discord.ui.button(label="Join Server", style=discord.ButtonStyle.green, url=f"https://discord.gg/{invite_code}")
+    @discord.ui.button(label="Join Server", style=discord.ButtonStyle.green)
     async def join_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        button.url = f"https://discord.gg/{self.invite_code}"
         await interaction.response.send_message("Opening invite link...", ephemeral=True)
 
 async def setup(bot):
