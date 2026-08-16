@@ -10,7 +10,12 @@ import logging
 import io
 from gtts import gTTS
 from langdetect import detect
-import speech_recognition as sr
+try:
+    import speech_recognition as sr
+    SPEECH_RECOGNITION_AVAILABLE = True
+except ImportError:
+    sr = None
+    SPEECH_RECOGNITION_AVAILABLE = False
 import tempfile
 
 logger = logging.getLogger('discord')
