@@ -1,14 +1,13 @@
 import discord
 from discord.ext import commands
-from discord.ext import menus
 import aiosqlite
 import os
 from utils.Tools import *
 from typing import Union
-from utils.paginator import Paginator as sonu
+from utils.paginator import Paginator as sonu, ListPageSource
 
  
-class BlacklistWordSource(menus.ListPageSource):
+class BlacklistWordSource(ListPageSource):
     def __init__(self, data):
         super().__init__(data, per_page=4)
 

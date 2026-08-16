@@ -7,7 +7,7 @@ from discord.ui import Button, View
 import psutil
 import time
 from utils.Tools import *
-from discord.ext import commands, menus
+from discord.ext import commands
 from discord.ext.commands import BucketType, cooldown
 import requests
 from typing import *
