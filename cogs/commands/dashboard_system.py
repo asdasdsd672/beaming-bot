@@ -442,26 +442,6 @@ class DashboardSystem(commands.Cog):
         
         await ctx.send(embed=embed)
 
-    @profile.command(name="banner", description="🖼️ Set your profile banner")
-    async def set_banner(self, ctx: commands.Context, url: str):
-        """Set your profile banner"""
-        async with aiosqlite.connect(self.db_path) as db:
-            await db.execute(
-                "UPDATE user_profiles SET banner_url = ?, last_updated = ? WHERE user_id = ?",
-                (url, datetime.now(timezone.utc).isoformat(), ctx.author.id)
-            )
-            await db.commit()
-        
-        embed = discord.Embed(
-            title="✅ Banner Updated",
-            description="Your profile banner has been updated!",
-            color=0x00ff00,
-            timestamp=datetime.now(timezone.utc)
-        )
-        embed.set_image(url=url)
-        
-        await ctx.send(embed=embed)
-
     @profile.command(name="badges", description="🎖️ Set your custom badges")
     async def set_badges(self, ctx: commands.Context, *, badges: str):
         """Set your custom badges (emoji separated by spaces)"""
