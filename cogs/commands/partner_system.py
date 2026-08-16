@@ -2,7 +2,8 @@ import discord
 from discord.ext import commands
 import aiosqlite
 from discord import app_commands
-from discord.ui import View, Button, ButtonStyle
+from discord.ui import View, Button
+from discord import ButtonStyle
 from datetime import datetime, timezone
 import asyncio
 
