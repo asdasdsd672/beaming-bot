@@ -49,8 +49,14 @@ class zyrox(commands.AutoShardedBot):
     async def load_extensions(self):
         for extension in extensions:
             try:
-                await self.load_extension(extension)
-                print(Fore.GREEN + Style.BRIGHT + f"Loaded extension: {extension}")
+                if extension == "cogs":
+                    # Load cogs using the custom loader
+                    import cogs
+                    await cogs.setup(self)
+                    print(Fore.GREEN + Style.BRIGHT + f"Loaded extension: {extension} (custom loader)")
+                else:
+                    await self.load_extension(extension)
+                    print(Fore.GREEN + Style.BRIGHT + f"Loaded extension: {extension}")
             except Exception as e:
                 print(f"{Fore.RED}{Style.BRIGHT}Failed to load extension {extension}. {e}")
         print(Fore.GREEN + Style.BRIGHT + "*" * 20)
