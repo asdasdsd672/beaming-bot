@@ -27,12 +27,13 @@ def _module_names() -> list[str]:
     modules: list[str] = []
     for path in COGS_ROOT.rglob("*.py"):
         relative = path.relative_to(COGS_ROOT)
+        
+        # Skip __init__.py files and files in unused directories
         if path.name == "__init__.py" or any("unused" in part.lower() for part in relative.parts):
             continue
         
-        # Skip directories that are just containers (like 'commands' folder)
-        # Only load actual .py files that contain cogs
-        if path.is_dir():
+        # Only process actual .py files (not directories)
+        if not path.is_file():
             continue
         
         # Skip if the parent directory doesn't have an __init__.py (not a proper package)
@@ -41,10 +42,20 @@ def _module_names() -> list[str]:
             if not (parent_dir / "__init__.py").exists():
                 continue
         
-        modules.append("cogs." + ".".join(relative.with_suffix("").parts))
+        module_name = "cogs." + ".".join(relative.with_suffix("").parts)
+        
+        # Debug: log what modules are being detected
+        LOGGER.debug(f"Detected module: {module_name}")
+        
+        modules.append(module_name)
 
     # The help command must be registered after every discoverable command.
     modules.sort(key=lambda name: (name == "cogs.commands.help", name.lower()))
+    
+    LOGGER.info(f"Total modules to load: {len(modules)}")
+    for mod in modules:
+        LOGGER.info(f"  - {mod}")
+    
     return modules
 
 
