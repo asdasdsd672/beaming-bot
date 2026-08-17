@@ -24,8 +24,9 @@ class HelpView(View):
             with open(CATALOG_PATH, 'r', encoding='utf-8') as f:
                 catalog = json.load(f)
             commands_list = catalog.get('commands', [])
-        except:
+        except Exception as e:
             # Fallback to bot.walk_commands if catalog doesn't exist
+            print(f"Help command: Could not load catalog ({e}), using fallback")
             commands_list = []
             for cmd in self.bot.walk_commands():
                 if not cmd.hidden:
@@ -37,6 +38,7 @@ class HelpView(View):
                         'permissions': 'Permission checks enforced' if cmd.checks else 'Everyone',
                         'aliases': list(cmd.aliases)
                     })
+            print(f"Help command: Found {len(commands_list)} commands via fallback")
 
         # Group by category
         categories: Dict[str, List[dict]] = {}
@@ -207,18 +209,21 @@ class Help(commands.Cog):
             with open(CATALOG_PATH, 'r', encoding='utf-8') as f:
                 catalog = json.load(f)
             commands_list = catalog.get('commands', [])
-        except:
+        except Exception as e:
+            print(f"Help get_categories: Could not load catalog ({e}), using fallback")
             commands_list = []
             for cmd in self.bot.walk_commands():
                 if not cmd.hidden:
                     commands_list.append({
                         'category': cmd.cog.qualified_name if cmd.cog else 'General'
                     })
+            print(f"Help get_categories: Found {len(commands_list)} commands via fallback")
 
         categories = set()
         for cmd in commands_list:
             categories.add(cmd.get('category', 'General'))
         
+        print(f"Help get_categories: Categories: {sorted(list(categories))}")
         return sorted(list(categories))
 
     @commands.command(name='help', aliases=['h', 'commands'])
@@ -251,6 +256,7 @@ class Help(commands.Cog):
 
         # Show interactive help menu
         categories = self.get_categories()
+        print(f"Help command: Total categories found: {len(categories)}")
         
         # Create select menu with categories
         select = Select(
@@ -272,6 +278,7 @@ class Help(commands.Cog):
         embed = await view.generate_help_embed()
         view.add_item(select)
         
+        print(f"Help command: Sending help embed with {len(categories)} categories")
         await ctx.send(embed=embed, view=view)
 
     @commands.hybrid_command(name='help', description='Shows help about bot commands')
