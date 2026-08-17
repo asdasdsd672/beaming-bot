@@ -44,9 +44,11 @@ def _module_names() -> list[str]:
         
         module_name = "cogs." + ".".join(relative.with_suffix("").parts)
         
-        # Skip package directories (module names that match directory names)
-        # For example, "cogs.commands" should be skipped, only "cogs.commands.general" should be loaded
-        if len(relative.parts) == 1 and COGS_ROOT.joinpath(relative.with_suffix("")).is_dir():
+        # Skip package directories - if the module path corresponds to a directory, skip it
+        # We only want to load actual .py files, not package directories
+        module_path = COGS_ROOT.joinpath(relative.with_suffix(""))
+        if module_path.is_dir():
+            LOGGER.debug(f"Skipping directory: {module_name}")
             continue
         
         # Debug: log what modules are being detected
