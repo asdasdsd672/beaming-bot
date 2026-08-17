@@ -1,277 +1,241 @@
 import discord
 from discord.ext import commands
-from discord import app_commands, Interaction
-from difflib import get_close_matches
-from contextlib import suppress
-from core import Context
-from core.zyrox import zyrox
-from core.Cog import Cog
-from utils.Tools import getConfig
-from itertools import chain
+from discord.ui import Select, View, Button
+from typing import Dict, List
 import json
-from utils import help as vhelp
-from utils import Paginator, DescriptionEmbedPaginator, FieldPagePaginator, TextPaginator
-import asyncio
-from utils.config import serverLink
-from utils.Tools import *
+from pathlib import Path
 
-color = 0xFF0000
-client = zyrox()
+CATALOG_PATH = Path("data/command_catalog.json")
 
-class HelpCommand(commands.HelpCommand):
 
-  async def send_ignore_message(self, ctx, ignore_type: str):
-    if ignore_type == "channel":
-      await ctx.reply(f"This channel is ignored.", mention_author=False)
-    elif ignore_type == "command":
-      await ctx.reply(f"{ctx.author.mention} This Command, Channel, or You have been ignored here.", delete_after=6)
-    elif ignore_type == "user":
-      await ctx.reply(f"You are ignored.", mention_author=False)
+class HelpView(View):
+    def __init__(self, bot, author_id):
+        super().__init__(timeout=60)
+        self.bot = bot
+        self.author_id = author_id
+        self.current_category = None
 
-  async def on_help_command_error(self, ctx, error):
-    errors = [
-      commands.CommandOnCooldown, commands.CommandNotFound,
-      discord.HTTPException, commands.CommandInvokeError
-    ]
-    if not type(error) in errors:
-      await self.context.reply(f"Unknown Error Occurred\n{error.original}",
-                               mention_author=False)
-    else:
-      if type(error) == commands.CommandOnCooldown:
-        return
-    return await super().on_help_command_error(ctx, error)
+    async def generate_help_embed(self, category: str = None) -> discord.Embed:
+        """Generate help embed based on category"""
+        
+        # Load command catalog
+        try:
+            with open(CATALOG_PATH, 'r', encoding='utf-8') as f:
+                catalog = json.load(f)
+            commands_list = catalog.get('commands', [])
+        except:
+            # Fallback to bot.walk_commands if catalog doesn't exist
+            commands_list = []
+            for cmd in self.bot.walk_commands():
+                if not cmd.hidden:
+                    commands_list.append({
+                        'name': cmd.qualified_name,
+                        'description': cmd.help or cmd.description or 'No description',
+                        'usage': f">{cmd.qualified_name} {cmd.signature}".rstrip(),
+                        'category': cmd.cog.qualified_name if cmd.cog else 'General',
+                        'permissions': 'Permission checks enforced' if cmd.checks else 'Everyone',
+                        'aliases': list(cmd.aliases)
+                    })
 
-  async def command_not_found(self, string: str) -> None:
-    ctx = self.context
-    check_ignore = await ignore_check().predicate(ctx)
-    check_blacklist = await blacklist_check().predicate(ctx)
+        # Group by category
+        categories: Dict[str, List[dict]] = {}
+        for cmd in commands_list:
+            cat = cmd.get('category', 'General')
+            if cat not in categories:
+                categories[cat] = []
+            categories[cat].append(cmd)
 
-    if not check_blacklist:
-        return
+        # If specific category requested
+        if category and category in categories:
+            cmds = categories[category]
+            embed = discord.Embed(
+                title=f"📚 {category} Commands",
+                description=f"Showing {len(cmds)} commands in {category}",
+                color=0xFF0000
+            )
+            
+            for cmd in cmds[:10]:  # Show first 10 to avoid embed limits
+                usage = cmd.get('usage', cmd['name'])
+                perms = cmd.get('permissions', 'Everyone')
+                aliases = ', '.join(cmd.get('aliases', []))
+                
+                value = f"**Usage:** `{usage}`\n"
+                if aliases:
+                    value += f"**Aliases:** {aliases}\n"
+                value += f"**Permissions:** {perms}\n"
+                value += f"**Description:** {cmd['description']}"
+                
+                embed.add_field(name=f"`{cmd['name']}`", value=value, inline=False)
+            
+            if len(cmds) > 10:
+                embed.set_footer(text=f"And {len(cmds) - 10} more commands in this category...")
+            
+            return embed
 
-    if not check_ignore:
-        await self.send_ignore_message(ctx, "command")
-        return
-
-    cmds = (str(cmd) for cmd in self.context.bot.walk_commands())
-    matches = get_close_matches(string, cmds)
-
-    embed = discord.Embed(
-        title="BeZmerz Help Menu",
-        description=f">>> **Ops! Command not found with the name** `{string}`.",
-        color=0xFF0000
-    )
-                          
-    #if matches:
-        #match_list = "\n".join([f"{index}. `{match}`" for index, match in enumerate(matches, start=1)])
-        #embed.add_field(name="Did you mean:", value=match_list, inline=True)
-
-    await ctx.reply(embed=embed, mention_author=True)
-
-  async def send_bot_help(self, mapping):
-    ctx = self.context
-    check_ignore = await ignore_check().predicate(ctx)
-    check_blacklist = await blacklist_check().predicate(ctx)
-
-    if not check_blacklist:
-      return
-
-    if not check_ignore:
-      await self.send_ignore_message(ctx, "command")
-      return
-
-    # Show loading embed
-    loading_embed = discord.Embed(
-      description="<a:loadingred:1448966488865247232> Loading help Menu...",
-      color=0xFF0000
-    )
-    loading_msg = await ctx.reply(embed=loading_embed)
-
-    # Wait 2 seconds
-    await asyncio.sleep(2)
-
-    # Delete loading message
-    with suppress(discord.NotFound):
-      await loading_msg.delete()
-
-    data = await getConfig(self.context.guild.id)
-    prefix = data["prefix"]
-    filtered = await self.filter_commands(self.context.bot.walk_commands(), sort=True)
-
-    embed = discord.Embed(
-        description=(
-         f"**<a:ArrowRed:1448951520077811806> __Start BeZmerz Today__**\n"        
-         f"**<:zArrow:1448951532837015643> Type {prefix}antinuke enable**\n"
-         f"**<:zArrow:1448951532837015643> Server Prefix:** `{prefix}`\n"
-         f"**<:zArrow:1448951532837015643> Total Commands:** `{len(set(self.context.bot.walk_commands()))}`\n"),         
-        color=0xFF0000)
-    embed.set_author(name=f"{ctx.author}", 
-                     icon_url=ctx.author.display_avatar.url)
-    embed.set_thumbnail(url=ctx.author.display_avatar.url)
-    
-    embed.add_field(
-        name="<:zCloud:1448951498213032036> __**Main Features**__",
-        value=">>> \n <:zSafe:1448951403434479626> `»` Security\n" 
-              " <:zbot:1448951393216888905> `»` Automoderation\n"
-              " <:zwrench:1448951382597177495> `»` Utility\n" 
-              " <:zmusic:1448951372707008533> `»` Music\n"
-              " <:zwifi:1448951466931912715> `»` Autoreact & responder\n"
-              " <:zsowrd:1448951362238021682> `»` Moderation\n"
-              " <:zpeople:1448951456861519962> `»` Autorole & Invc\n"
-              " <:zrocket:1448951445989888010> `»` Fun\n"
-              " <:games:1448951285498777641> `»` Games\n" 
-              " <:zban:1448951424665784373> `»` Ignore Channels\n"
-              " <:zwifi:1448951466931912715> `»` Server\n"
-              " <:zunmute:1448951487970414694> `»` Voice\n"
-              " <:zseed:1448951477640101929> `»` Welcomer\n"  
-              " <:ztada:1448951329664925717> `»` Giveaway\n"
-              " <:zticket:1448951318713470987> `»` Ticket <:New:1448949337395695616>\n"
-              " <:zpeople:1448951456861519962> `»` Invite Tracker <:New:1448949337395695616>\n"
-    )
-    
-    embed.add_field(
-        name=" <:zmodule:1448951340716785744> __**Extra Features**__",
-        value=">>> \n <:zcast:1448951414301655175> `»` Advance Logging\n"
-              " <:starr:1448951307707748395> `»` Vanityroles\n"
-              
-              " <:zcounting:1448949348103749713> `»` Counting <:New:1448949337395695616>\n"
-              " <:zyrox_system:1448949359159939143> `»` J2C <:New:1448949337395695616>\n"
-              " <:zai:1448949821611446302> `»` AI <:New:1448949337395695616>\n"
-              " <:boost:1448966463586041906> `»` Boost <:New:1448949337395695616>\n"
-              " <:zlevelup:1448964376504696943> `»` Leveling <:New:1448949337395695616>\n"
-              " <:zpin:1448949810462855249> `»` Sticky <:New:1448949337395695616>\n"
-              " <:zyroxthunder:1448949415200034907> `»` Verification <:New:1448949337395695616>\n"
-              " <:lock:1448949549455511685> `»` Encryption <:New:1448949337395695616>\n" 
-              " <:zmc:1448964387426537474> `»` Minecraft <:New:1448949337395695616>\n"
-              " <:zmsg:1448964399166394483> `»` Joindm <:New:1448949337395695616>\n"
-              " <:zcircle:1448964410155470848> `»` Birthday <:New:1448949337395695616>\n"
-              " <:zcircle:1448951351601270814> `»` Customrole\n"           
-    )
-
-    embed.set_footer(
-      text=f"Requested By {self.context.author} | [Support](https://discord.gg/P9UXgfMT6P)",
-    )
-    
-    view = vhelp.View(mapping=mapping, ctx=self.context, homeembed=embed, ui=2)
-    await ctx.reply(embed=embed, view=view)
-
-  async def send_command_help(self, command):
-    ctx = self.context
-    check_ignore = await ignore_check().predicate(ctx)
-    check_blacklist = await blacklist_check().predicate(ctx)
-
-    if not check_blacklist:
-      return
-
-    if not check_ignore:
-      await self.send_ignore_message(ctx, "command")
-      return
-
-    zyrox = f">>> {command.help}" if command.help else '>>> No Help Provided...'
-    embed = discord.Embed(
-        description=f"""{zyrox}""",
-        color=color)
-    alias = ' & '.join(command.aliases)
-
-    embed.add_field(name="**Alt cmd**",
-                      value=f"```{alias}```" if command.aliases else "No Alt cmd",
-                      inline=False)
-    embed.add_field(name="**Usage**",
-                      value=f"```{self.context.prefix}{command.signature}```\n")
-    embed.set_author(name=f"{command.qualified_name.title()} Command")
-    embed.set_footer(text="<[] = optional | < > = required • Use Prefix Before Commands.")
-    await self.context.reply(embed=embed, mention_author=False)
-
-  def get_command_signature(self, command: commands.Command) -> str:
-    parent = command.full_parent_name
-    if len(command.aliases) > 0:
-      aliases = ' | '.join(command.aliases)
-      fmt = f'[{command.name} | {aliases}]'
-      if parent:
-        fmt = f'{parent}'
-      alias = f'[{command.name} | {aliases}]'
-    else:
-      alias = command.name if not parent else f'{parent} {command.name}'
-    return f'{alias} {command.signature}'
-
-  def common_command_formatting(self, embed_like, command):
-    embed_like.title = self.get_command_signature(command)
-    if command.description:
-      embed_like.description = f'{command.description}\n\n{command.help}'
-    else:
-      embed_like.description = command.help or 'No help found...'
-
-  async def send_group_help(self, group):
-    ctx = self.context
-    check_ignore = await ignore_check().predicate(ctx)
-    check_blacklist = await blacklist_check().predicate(ctx)
-
-    if not check_blacklist:
-      return
-
-    if not check_ignore:
-      await self.send_ignore_message(ctx, "command")
-      return
-
-    entries = [
-        (
-            f"`{self.context.prefix}{cmd.qualified_name}`\n",
-            f"{cmd.short_doc if cmd.short_doc else ''}\n\u200b"
+        # Main help menu - show all categories
+        embed = discord.Embed(
+            title="⚡ BeZmerz Help Menu",
+            description="Welcome to BeZmerz! Select a category to view commands.",
+            color=0xFF0000
         )
-        for cmd in group.commands
-      ]
+        
+        embed.add_field(
+            name="📊 Statistics",
+            value=f"**Total Commands:** {len(commands_list)}\n**Categories:** {len(categories)}",
+            inline=False
+        )
+        
+        # Show categories with command counts
+        category_list = []
+        for cat, cmds in sorted(categories.items()):
+            category_list.append(f"**{cat}:** {len(cmds)} commands")
+        
+        embed.add_field(
+            name="📁 Categories",
+            value="\n".join(category_list[:10]) if len(category_list) > 10 else "\n".join(category_list),
+            inline=False
+        )
+        
+        embed.add_field(
+            name="🔧 How to Use",
+            value="Use the dropdown menu below to select a category, or use `>help <command>` for specific command info.",
+            inline=False
+        )
+        
+        embed.set_footer(text=f"Requested by {self.bot.get_user(self.author_id)}", icon_url=self.bot.user.avatar.url if self.bot.user.avatar else None)
+        
+        return embed
 
-    count = len(group.commands)
+    @discord.ui.select(
+        placeholder="Select a category...",
+        min_values=1,
+        max_values=1,
+        row=0
+    )
+    async def category_select(self, interaction: discord.Interaction, select: discord.ui.Select):
+        if interaction.user.id != self.author_id:
+            await interaction.response.send_message("This is not your help menu!", ephemeral=True)
+            return
 
-    embeds = FieldPagePaginator(
-      entries=entries,
-      title=f"{group.qualified_name.title()} [{count}]",
-      description="< > Duty | [ ] Optional\n",
-      per_page=4
-    ).get_pages()   
-    
-    paginator = Paginator(ctx, embeds)
-    await paginator.paginate()
+        category = select.values[0]
+        embed = await self.generate_help_embed(category)
+        
+        # Update select options
+        self.clear_items()
+        self.add_item(self.category_select)
+        self.add_item(self.back_button)
+        self.add_item(self.home_button)
+        
+        await interaction.response.edit_message(embed=embed, view=self)
 
-  async def send_cog_help(self, cog):
-    ctx = self.context
-    check_ignore = await ignore_check().predicate(ctx)
-    check_blacklist = await blacklist_check().predicate(ctx)
+    @discord.ui.button(label="🏠 Home", style=discord.ButtonStyle.blurple, row=1)
+    async def home_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if interaction.user.id != self.author_id:
+            await interaction.response.send_message("This is not your help menu!", ephemeral=True)
+            return
 
-    if not check_blacklist:
-      return
+        embed = await self.generate_help_embed()
+        self.clear_items()
+        self.add_item(self.category_select)
+        
+        await interaction.response.edit_message(embed=embed, view=self)
 
-    if not check_ignore:
-      await self.send_ignore_message(ctx, "command")
-      return
+    @discord.ui.button(label="⬅️ Back", style=discord.ButtonStyle.secondary, row=1)
+    async def back_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if interaction.user.id != self.author_id:
+            await interaction.response.send_message("This is not your help menu!", ephemeral=True)
+            return
 
-    entries = [(
-      f"> `{self.context.prefix}{cmd.qualified_name}`",
-      f"-# Description : {cmd.short_doc if cmd.short_doc else ''}"
-      f"\n\u200b",
-    ) for cmd in cog.get_commands()]
-    paginator = Paginator(source=FieldPagePaginator(
-      entries=entries,
-      title=f"Zyrox's {cog.qualified_name.title()} ({len(cog.get_commands())})",
-      description="`<..> Required | [..] Optional`\n\n",
-      color=0xFF0000,
-      per_page=4),
-                          ctx=self.context)
-    await paginator.paginate()
+        embed = await self.generate_help_embed()
+        self.clear_items()
+        self.add_item(self.category_select)
+        
+        await interaction.response.edit_message(embed=embed, view=self)
+
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        return interaction.user.id == self.author_id
 
 
-class Help(Cog, name="help"):
+class Help(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+        self.color = 0xFF0000
 
-  def __init__(self, client: zyrox):
-    self._original_help_command = client.help_command
-    attributes = {
-      'name': "help",
-      'aliases': ['h'],
-      'cooldown': commands.CooldownMapping.from_cooldown(1, 5, commands.BucketType.user),
-      'help': 'Shows help about bot, a command, or a category'
-    }
-    client.help_command = HelpCommand(command_attrs=attributes)
-    client.help_command.cog = self
+    def get_categories(self) -> List[str]:
+        """Get list of command categories"""
+        try:
+            with open(CATALOG_PATH, 'r', encoding='utf-8') as f:
+                catalog = json.load(f)
+            commands_list = catalog.get('commands', [])
+        except:
+            commands_list = []
+            for cmd in self.bot.walk_commands():
+                if not cmd.hidden:
+                    commands_list.append({
+                        'category': cmd.cog.qualified_name if cmd.cog else 'General'
+                    })
 
-  async def cog_unload(self):
-    self.help_command = self._original_help_command
+        categories = set()
+        for cmd in commands_list:
+            categories.add(cmd.get('category', 'General'))
+        
+        return sorted(list(categories))
+
+    @commands.command(name='help', aliases=['h', 'commands'])
+    async def help_command(self, ctx, *, command_name: str = None):
+        """Shows help about bot, a command, or a category"""
+        
+        # If specific command requested
+        if command_name:
+            command = self.bot.get_command(command_name)
+            if command:
+                embed = discord.Embed(
+                    title=f"❓ Command: {command.qualified_name}",
+                    color=self.color
+                )
+                
+                embed.add_field(name="Description", value=command.help or command.description or "No description", inline=False)
+                embed.add_field(name="Usage", value=f"`>{command.qualified_name} {command.signature}`".rstrip(), inline=False)
+                
+                if command.aliases:
+                    embed.add_field(name="Aliases", value=", ".join(command.aliases), inline=False)
+                
+                if command.cog:
+                    embed.add_field(name="Category", value=command.cog.qualified_name, inline=False)
+                
+                embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar.url if ctx.author.avatar else ctx.author.default_avatar.url)
+                await ctx.send(embed=embed)
+            else:
+                await ctx.send(f"❌ Command `{command_name}` not found.")
+            return
+
+        # Show interactive help menu
+        categories = self.get_categories()
+        
+        # Create select menu with categories
+        select = Select(
+            placeholder="Select a category...",
+            min_values=1,
+            max_values=1,
+        )
+        
+        for category in categories:
+            select.add_option(label=category, value=category)
+        
+        view = HelpView(self.bot, ctx.author.id)
+        view.category_select = select
+        
+        embed = await view.generate_help_embed()
+        view.add_item(select)
+        
+        await ctx.send(embed=embed, view=view)
+
+    @commands.hybrid_command(name='help', description='Shows help about bot commands')
+    async def help_slash(self, ctx: discord.Interaction, command: str = None):
+        """Shows help about bot commands"""
+        # This is a placeholder for slash command support
+        await ctx.response.send_message("Please use the prefix command `>help` for the full interactive help menu.", ephemeral=True)
+
+
+async def setup(bot):
+    await bot.add_cog(Help(bot))

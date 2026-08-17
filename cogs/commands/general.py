@@ -214,66 +214,8 @@ class General(commands.Cog):
     await msg.add_reaction("<:zcross:1448951756372443296>")
 
   
-  @commands.command(name="hack",
-    help="hack someone's discord account",
-    usage="Hack <member>")
-  @blacklist_check()
-  @ignore_check()
-  @commands.cooldown(1, 3, commands.BucketType.user)
-  async def hack(self, ctx: commands.Context, member: discord.Member):
-    stringi = member.name
-    min_length = 2
-    max_length = 12
-    length = random.randint(min_length, max_length)
-    stringg = member.name
-    remaining_length = length - len(stringg)
-    all_chars = string.ascii_letters + string.digits + string.punctuation
-    random_chars = random.choices(all_chars, k=remaining_length)
 
-    password = stringg + ''.join(random_chars)
-    
-    lund = await ctx.send(f"Processing to Hack {member.mention}...")
-    await asyncio.sleep(2)
-    random_pass = random.choice(lawda)
-    
-    random_pass2 = ''.join(random.choices(string.ascii_letters + string.digits, k=3))
-    embed = discord.Embed(
-  title=f"**Hacked {member.display_name}!**",
-  description=(
-  f"User - {member.mention}\n"
-  f"E-Mail - {''.join(letter for letter in stringi if letter.isalnum())}{random_pass}@gmail.com\n"
-  f"Account Password - {member.name}@{random_pass2}"
-  ),
-  color=0x000000
-  )
-    embed.set_footer(
-  text=f"Hacked By {ctx.author}",
-  icon_url=ctx.author.avatar.url if ctx.author.avatar else ctx.author.default_avatar.url
-  )
-    await ctx.send(embed=embed)
-    await lund.delete()
-
-
-  @commands.command(name="token", usage="Token <member>")
-  @blacklist_check()
-  @ignore_check()
-  @commands.cooldown(1, 2, commands.BucketType.user)
-  async def token(self, ctx: commands.Context, user: discord.Member = None):
-    list = [
-      "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N",
-      "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "_"
-      'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
-      'ñ', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0',
-      '1', '2', '3', '4', '5', '6', '7', '8', '9'
-    ]
-    token = random.choices(list, k=59)
-    if user is None:
-      user = ctx.author
-      await ctx.send(user.mention + "'s token: " + ''.join(token))
-    else:
-      await ctx.send(user.mention + "'s token: " + "".join(token))
-
-  @commands.command(name="users", help="checks total users of Zyrox X.")
+  @commands.command(name="users", help="checks total users of BeZmerz.")
   @blacklist_check()
   @ignore_check()
   @commands.cooldown(1, 3, commands.BucketType.user)
@@ -282,47 +224,12 @@ class General(commands.Cog):
                 if g.member_count != None)
     guilds = len(self.bot.guilds)
     embed = discord.Embed(
-      title=f"**Zyrox X Users**",
+      title=f"**BeZmerz Users**",
       description=f"❯ Total of __**{users}**__ Users in **{guilds}** Guilds",
       color=self.color)
     await ctx.send(embed=embed)
 
 
-  @commands.command(name="wizz", usage="Wizz")
-  @blacklist_check()
-  @ignore_check()
-  @commands.cooldown(1, 3, commands.BucketType.user)
-  async def wizz(self, ctx: commands.Context):
-    message6 = await ctx.send(
-      f"`Wizzing {ctx.guild.name}, will take 22 seconds to complete`")
-    message7 = await ctx.send(f"Changing all guild settings...")
-    message5 = await ctx.send(f"Deleting **{len(ctx.guild.roles)}** Roles...")
-    await asyncio.sleep(1)
-    message4 = await ctx.send(
-      f"Deleting **{len(ctx.guild.channels)}** Channels...")
-    await asyncio.sleep(1)
-    message3 = await ctx.send(f"Deleting Webhooks...")
-    message2 = await ctx.send(f"Deleting emojis")
-    await asyncio.sleep(1)
-    message1 = await ctx.send(f"Installing Ban Wave..")
-    await asyncio.sleep(1)
-    await message6.delete()
-    await message7.delete()
-    await message5.delete()
-    await message4.delete()
-    await message3.delete()
-    await message2.delete()
-    await message1.delete()
-    embed = discord.Embed(
-      title=f"{self.bot.user.name}",
-      description=f"**<:zwarning:1448949627712966717> Successfully Wizzed {ctx.guild.name}**",
-      color=self.color,
-      timestamp=ctx.message.created_at)
-    embed.set_footer(
-      text=f"Wizzed By {ctx.author}",
-      icon_url=ctx.author.avatar.url if ctx.author.avatar else ctx.author.default_avatar.url
-      )
-    await ctx.send(embed=embed)
 
 
   @commands.hybrid_command(
@@ -434,21 +341,21 @@ class General(commands.Cog):
   @commands.cooldown(1, 3, commands.BucketType.user)
   async def invite(self, ctx: commands.Context):
       embed = discord.Embed(
-          title="<:zyroxconnection:1448949425828528230> Zyrox X Integration Hub!",
+          title="⚡ BeZmerz Integration Hub!",
           description="```Empower your server with blazing-fast features and 24/7 support!```",
           color=0xFF0000
       )
       embed.set_thumbnail(url=self.bot.user.avatar.url)
       embed.add_field(
-          name="<:zyroxlinks:1448949436939239495> Quick Actions",
+          name="🔗 Quick Actions",
           value=(
-              ">>> **[Invite Zyrox](https://discord.com/oauth2/authorize?client_id=1396114795102470196&permissions=8&integration_type=0&scope=bot+applications.commands)**\n"
-              "**[Support Server](https://discord.gg/codexdev)**"
+              ">>> **[Invite BeZmerz](https://discord.com/oauth2/authorize?client_id=1396114795102470196&permissions=8&integration_type=0&scope=bot+applications.commands)**\n"
+              "**[Support Server](https://discord.gg/P9UXgfMT6P)**"
           ),
           inline=False
       )
       embed.set_footer(
-          text=f"Powerd By Zyrox Development",
+          text=f"Powered By BeZmerz Development",
           icon_url=self.bot.user.avatar.url
       )
       await ctx.send(embed=embed)

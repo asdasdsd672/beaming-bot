@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}Commands - BeZmerz{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <h1 class="section-title">Bot Commands</h1>
+            <p class="section-subtitle">All available commands for BeZmerz Discord bot</p>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading-state" class="text-center" style="padding: 3rem;">
+            <div class="loading"></div>
+            <p style="margin-top: 1rem; color: var(--text-secondary);">Loading commands...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="error-state" class="text-center d-none" style="padding: 3rem;">
+            <h3 style="color: var(--error);">Unable to Load Commands</h3>
+            <p style="color: var(--text-secondary);">The bot needs to run first to generate the command catalog.</p>
+        </div>
+
+        <!-- Commands Content -->
+        <div id="commands-content" class="d-none">
+            <!-- Stats -->
+            <div class="card mb-4">
+                <div class="d-flex gap-4" style="justify-content: center; flex-wrap: wrap;">
+                    <div class="text-center">
+                        <h3 class="text-primary" style="font-size: 2rem; margin-bottom: 0.5rem;" id="total-commands">0</h3>
+                        <p class="text-secondary">Total Commands</p>
+                    </div>
+                    <div class="text-center">
+                        <h3 class="text-primary" style="font-size: 2rem; margin-bottom: 0.5rem;" id="total-categories">0</h3>
+                        <p class="text-secondary">Categories</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search and Filter -->
+            <div class="card mb-4">
+                <div class="d-flex gap-2" style="flex-wrap: wrap;">
+                    <input type="text" id="command-search" class="form-control" placeholder="Search commands..." style="flex: 1; min-width: 200px;">
+                    <select id="category-filter" class="form-control" style="width: auto; min-width: 150px;">
+                        <option value="all">All Categories</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Commands Grid -->
+            <div class="grid grid-3" id="commands-container"></div>
+
+            <!-- No Results Message -->
+            <div id="no-results" class="text-center d-none" style="padding: 3rem;">
+                <h3 style="color: var(--text-muted);">No commands found</h3>
+                <p style="color: var(--text-secondary);">Try adjusting your search or filter criteria</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Load commands from API
+    async function loadCommands() {
+        const loadingState = document.getElementById('loading-state');
+        const errorState = document.getElementById('error-state');
+        const commandsContent = document.getElementById('commands-content');
+        const commandsContainer = document.getElementById('commands-container');
+        const categoryFilter = document.getElementById('category-filter');
+        const totalCommands = document.getElementById('total-commands');
+        const totalCategories = document.getElementById('total-categories');
+
+        try {
+            const response = await fetch('/api/commands');
+            const data = await response.json();
+
+            if (data.error || data.commands.length === 0) {
+                loadingState.classList.add('d-none');
+                errorState.classList.remove('d-none');
+                return;
+            }
+
+            // Hide loading, show content
+            loadingState.classList.add('d-none');
+            commandsContent.classList.remove('d-none');
+
+            // Update stats
+            totalCommands.textContent = data.command_count;
+            
+            // Get unique categories
+            const categories = [...new Set(data.commands.map(cmd => cmd.category))];
+            totalCategories.textContent = categories.length;
+
+            // Populate category filter
+            categories.sort().forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                categoryFilter.appendChild(option);
+            });
+
+            // Render command cards
+            data.commands.forEach(command => {
+                const card = document.createElement('div');
+                card.className = 'command-card';
+                card.dataset.category = command.category;
+                
+                const aliases = command.aliases.length > 0 ? `**Aliases:** ${command.aliases.join(', ')}\n` : '';
+                
+                card.innerHTML = `
+                    <div class="command-name">${command.name}</div>
+                    <div class="command-description">${command.description}</div>
+                    <div class="command-usage">${command.usage}</div>
+                    <div style="margin-top: 0.5rem; font-size: 0.875rem; color: var(--text-muted);">
+                        <strong>Category:</strong> ${command.category}<br>
+                        <strong>Permissions:</strong> ${command.permissions}
+                    </div>
+                `;
+                
+                commandsContainer.appendChild(card);
+            });
+
+            // Setup search and filter
+            setupSearchAndFilter();
+
+        } catch (error) {
+            console.error('Error loading commands:', error);
+            loadingState.classList.add('d-none');
+            errorState.classList.remove('d-none');
+        }
+    }
+
+    function setupSearchAndFilter() {
+        const searchInput = document.getElementById('command-search');
+        const categoryFilter = document.getElementById('category-filter');
+        const commandsContainer = document.getElementById('commands-container');
+        const noResults = document.getElementById('no-results');
+        const commandCards = document.querySelectorAll('.command-card');
+
+        function filterCommands() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const selectedCategory = categoryFilter.value;
+            let visibleCount = 0;
+
+            commandCards.forEach(card => {
+                const commandName = card.querySelector('.command-name').textContent.toLowerCase();
+                const commandDescription = card.querySelector('.command-description').textContent.toLowerCase();
+                const commandCategory = card.dataset.category;
+
+                const matchesSearch = commandName.includes(searchTerm) || commandDescription.includes(searchTerm);
+                const matchesCategory = selectedCategory === 'all' || commandCategory === selectedCategory;
+
+                if (matchesSearch && matchesCategory) {
+                    card.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // Show/hide no results message
+            if (visibleCount === 0) {
+                noResults.classList.remove('d-none');
+            } else {
+                noResults.classList.add('d-none');
+            }
+        }
+
+        searchInput.addEventListener('input', filterCommands);
+        categoryFilter.addEventListener('change', filterCommands);
+    }
+
+    // Load commands on page load
+    document.addEventListener('DOMContentLoaded', loadCommands);
+</script>
+{% endblock %}

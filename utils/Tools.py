@@ -16,8 +16,6 @@ async def setup_db():
     await db.commit()
 
 
-asyncio.run(setup_db())
-
 async def is_topcheck_enabled(guild_id: int):
     async with aiosqlite.connect('db/topcheck.db') as db:
         async with db.execute("SELECT enabled FROM topcheck WHERE guild_id = ?", (guild_id,)) as cursor:
@@ -75,6 +73,7 @@ def updateignore(guild_id, data):
 
 
 async def getConfig(guildID):
+  await setup_db()
   async with aiosqlite.connect('db/prefix.db') as db:
     async with db.execute("SELECT prefix FROM prefixes WHERE guild_id = ?", (guildID,)) as cursor:
       row = await cursor.fetchone()
@@ -86,6 +85,7 @@ async def getConfig(guildID):
         return defaultConfig
 
 async def updateConfig(guildID, data):
+  await setup_db()
   async with aiosqlite.connect('db/prefix.db') as db:
     await db.execute(
       "INSERT OR REPLACE INTO prefixes (guild_id, prefix) VALUES (?, ?)",

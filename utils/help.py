@@ -140,30 +140,43 @@ class View(discord.ui.View):
         for cog in self.get_cogs():
             if cog.__class__.__name__ == "Roleplay":
                 continue
+            
+            # Get commands from this cog
+            commands = cog.get_commands()
+            if not commands:
+                continue
+            
+            # Check if cog has custom help
             if "help_custom" in dir(cog):
                 emoji, label, description = cog.help_custom()
-                original_label = label
-                counter = 1
-                while label in used_labels:
-                    label = f"{original_label} {counter}"
-                    counter += 1
-                used_labels.add(label)
-                options.append(discord.SelectOption(label=label, emoji=emoji, description=description))
-                embed = discord.Embed(title=f"{emoji} {original_label}", color=0xFF0000)
+            else:
+                # Fallback for cogs without custom help
+                emoji = "📁"
+                label = cog.__class__.__name__
+                description = f"{len(commands)} commands"
+            
+            original_label = label
+            counter = 1
+            while label in used_labels:
+                label = f"{original_label} {counter}"
+                counter += 1
+            used_labels.add(label)
+            options.append(discord.SelectOption(label=label, emoji=emoji, description=description))
+            embed = discord.Embed(title=f"{emoji} {original_label}", color=0xFF0000)
 
-                for command in cog.get_commands():
-                    params = ""
-                    for param in command.clean_params:
-                        if param not in ["self", "ctx"]:
-                            params += f" <{param}>"
-                    help_text = command.help or "No description available"
-                    if len(help_text) > 1020:
-                        help_text = help_text[:1017] + "..."
-                    embed.add_field(name=f"{command.name}{params}",
-                                    value=f"{help_text}\n•",
-                                    inline=False)
-                embeds.append(embed)
-                total_pages += 1
+            for command in commands:
+                params = ""
+                for param in command.clean_params:
+                    if param not in ["self", "ctx"]:
+                        params += f" <{param}>"
+                help_text = command.help or "No description available"
+                if len(help_text) > 1020:
+                    help_text = help_text[:1017] + "..."
+                embed.add_field(name=f"{command.name}{params}",
+                                value=f"{help_text}\n•",
+                                inline=False)
+            embeds.append(embed)
+            total_pages += 1
 
         self.home.set_footer(text=f"• Help page 1/{total_pages} | Requested by: {self.ctx.author.display_name}",
                              icon_url=f"{self.ctx.bot.user.avatar.url}")

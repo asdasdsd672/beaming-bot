@@ -1,109 +1,102 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beaming Bot - Dashboard</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .container {
-            text-align: center;
-            color: white;
-        }
-        
-        h1 {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-        
-        p {
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
-            opacity: 0.9;
-        }
-        
-        .btn {
-            display: inline-block;
-            padding: 15px 40px;
-            background: white;
-            color: #667eea;
-            text-decoration: none;
-            border-radius: 50px;
-            font-weight: bold;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-        
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-        }
-        
-        .features {
-            margin-top: 3rem;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            max-width: 1000px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        
-        .feature {
-            background: rgba(255,255,255,0.1);
-            padding: 2rem;
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
-        }
-        
-        .feature h3 {
-            margin-bottom: 1rem;
-            font-size: 1.3rem;
-        }
-        
-        .feature p {
-            font-size: 0.9rem;
-            margin-bottom: 0;
-        }
-    </style>
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block title %}BeZmerz - Advanced Discord Bot & Service Hub{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-content animate-fade-in-up">
+        <h1 class="hero-title">⚡ BeZmerz</h1>
+        <p class="hero-subtitle">Advanced Discord Bot & Service Hub for Modern Communities</p>
+        <div class="hero-buttons">
+            <a href="/commands" class="btn btn-primary btn-lg">View Commands</a>
+            <a href="/tools" class="btn btn-secondary btn-lg">Explore Tools</a>
+            <a href="https://discord.gg/P9UXgfMT6P" target="_blank" class="btn btn-accent btn-lg">Join Discord</a>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="section">
     <div class="container">
-        <h1>🚀 Beaming Bot Dashboard</h1>
-        <p>Your comprehensive Discord bot management system</p>
-        
-        <a href="/login" class="btn">Login with Token</a>
-        
-        <div class="features">
-            <div class="feature">
-                <h3>👤 User Profiles</h3>
-                <p>Custom profiles with XP, levels, and social connections</p>
+        <div class="section-header">
+            <h2 class="section-title">Powerful Features</h2>
+            <p class="section-subtitle">Everything you need to manage and enhance your Discord community</p>
+        </div>
+        <div class="grid grid-3">
+            <div class="card feature-card">
+                <div class="feature-icon">🛡️</div>
+                <h3 class="feature-title">Advanced Security</h3>
+                <p class="feature-description">Comprehensive anti-nuke protection with automated threat detection and response systems.</p>
             </div>
-            <div class="feature">
-                <h3>📊 Statistics</h3>
-                <p>Track your activity and server statistics</p>
+            <div class="card feature-card">
+                <div class="feature-icon">🎮</div>
+                <h3 class="feature-title">Entertainment</h3>
+                <p class="feature-description">Music, games, trivia, and interactive features to keep your community engaged.</p>
             </div>
-            <div class="feature">
-                <h3>🏆 Leaderboards</h3>
-                <p>Compete with others on global leaderboards</p>
+            <div class="card feature-card">
+                <div class="feature-icon">📊</div>
+                <h3 class="feature-title">Analytics</h3>
+                <p class="feature-description">Detailed statistics, user profiles, leaderboards, and activity tracking.</p>
+            </div>
+            <div class="card feature-card">
+                <div class="feature-icon">🤖</div>
+                <h3 class="feature-title">AI Integration</h3>
+                <p class="feature-description">Smart AI-powered chatbot, image generation, and intelligent automation.</p>
+            </div>
+            <div class="card feature-card">
+                <div class="feature-icon">⚙️</div>
+                <h3 class="feature-title">Moderation</h3>
+                <p class="feature-description">Auto-moderation, logging, ticket systems, and comprehensive admin tools.</p>
+            </div>
+            <div class="card feature-card">
+                <div class="feature-icon">🎨</div>
+                <h3 class="feature-title">Customization</h3>
+                <p class="feature-description">Custom roles, welcome messages, reaction roles, and server personalization.</p>
             </div>
         </div>
     </div>
-</body>
-</html>
+</section>
+
+<!-- Stats Section -->
+<section class="section" style="background: var(--surface);">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Trusted by Communities</h2>
+            <p class="section-subtitle">Join thousands of servers using BeZmerz</p>
+        </div>
+        <div class="grid grid-4">
+            <div class="card text-center">
+                <h3 class="text-primary" style="font-size: 2.5rem; margin-bottom: 0.5rem;">3+</h3>
+                <p class="text-secondary">Active Servers</p>
+            </div>
+            <div class="card text-center">
+                <h3 class="text-primary" style="font-size: 2.5rem; margin-bottom: 0.5rem;">32+</h3>
+                <p class="text-secondary">Users</p>
+            </div>
+            <div class="card text-center">
+                <h3 class="text-primary" style="font-size: 2.5rem; margin-bottom: 0.5rem;">100+</h3>
+                <p class="text-secondary">Commands</p>
+            </div>
+            <div class="card text-center">
+                <h3 class="text-primary" style="font-size: 2.5rem; margin-bottom: 0.5rem;">24/7</h3>
+                <p class="text-secondary">Uptime</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="section">
+    <div class="container">
+        <div class="card text-center" style="background: var(--gradient-primary); border: none;">
+            <h2 style="color: white; margin-bottom: 1rem;">Ready to Get Started?</h2>
+            <p style="color: rgba(255,255,255,0.9); margin-bottom: 2rem; font-size: 1.25rem;">Add BeZmerz to your server and transform your community experience.</p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="https://discord.gg/P9UXgfMT6P" target="_blank" class="btn btn-lg" style="background: white; color: var(--primary);">Add to Discord</a>
+                <a href="/documentation" class="btn btn-lg" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);">Read Documentation</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

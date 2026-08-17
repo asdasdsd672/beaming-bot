@@ -48,6 +48,30 @@ async def index():
     """Home page"""
     return render_template('index.html')
 
+@app.route('/api/commands')
+async def api_commands():
+    """API endpoint for command catalog"""
+    try:
+        from pathlib import Path
+        catalog_path = Path("data/command_catalog.json")
+        
+        if catalog_path.exists():
+            import json
+            with open(catalog_path, 'r', encoding='utf-8') as f:
+                catalog = json.load(f)
+            return jsonify(catalog)
+        else:
+            # Fallback if catalog doesn't exist yet
+            return jsonify({
+                "generated_at": "",
+                "command_count": 0,
+                "commands": [],
+                "loader": [],
+                "error": "Command catalog not generated yet. Bot needs to run first."
+            })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/login')
 async def login():
     """Login page"""
@@ -242,6 +266,31 @@ async def logout():
     response = redirect(url_for('index'))
     response.delete_cookie('auth_token')
     return response
+
+@app.route('/documentation')
+async def documentation():
+    """Documentation page"""
+    return render_template('documentation.html')
+
+@app.route('/about')
+async def about():
+    """About page"""
+    return render_template('about.html')
+
+@app.route('/contact')
+async def contact():
+    """Contact page"""
+    return render_template('contact.html')
+
+@app.route('/privacy')
+async def privacy():
+    """Privacy policy page"""
+    return render_template('privacy.html')
+
+@app.route('/terms')
+async def terms():
+    """Terms of service page"""
+    return render_template('terms.html')
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
