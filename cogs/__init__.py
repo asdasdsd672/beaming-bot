@@ -29,6 +29,18 @@ def _module_names() -> list[str]:
         relative = path.relative_to(COGS_ROOT)
         if path.name == "__init__.py" or any("unused" in part.lower() for part in relative.parts):
             continue
+        
+        # Skip directories that are just containers (like 'commands' folder)
+        # Only load actual .py files that contain cogs
+        if path.is_dir():
+            continue
+        
+        # Skip if the parent directory doesn't have an __init__.py (not a proper package)
+        if len(relative.parts) > 1:
+            parent_dir = COGS_ROOT / Path(*relative.parts[:-1])
+            if not (parent_dir / "__init__.py").exists():
+                continue
+        
         modules.append("cogs." + ".".join(relative.with_suffix("").parts))
 
     # The help command must be registered after every discoverable command.
