@@ -75,8 +75,8 @@ class zyrox(commands.AutoShardedBot):
             (discord.ActivityType.playing, f"{prefix}help | Security in your Server"),
             (discord.ActivityType.watching, f"{user_count} users"),
             (discord.ActivityType.watching, f"{guild_count} servers"),
-            (discord.ActivityType.listening, "Killing Nukers"),
-            (discord.ActivityType.playing, "Protector Zyrox"),
+            (discord.ActivityType.listening, "Protecting Servers"),
+            (discord.ActivityType.playing, "BeZmerz Bot"),
         ]
 
         current = self.status_list[self.status_index % len(self.status_list)]

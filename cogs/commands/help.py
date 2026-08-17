@@ -14,6 +14,7 @@ class HelpView(View):
         self.bot = bot
         self.author_id = author_id
         self.current_category = None
+        self.category_select = None
 
     async def generate_help_embed(self, category: str = None) -> discord.Embed:
         """Generate help embed based on category"""
@@ -106,13 +107,7 @@ class HelpView(View):
         
         return embed
 
-    @discord.ui.select(
-        placeholder="Select a category...",
-        min_values=1,
-        max_values=1,
-        row=0
-    )
-    async def category_select(self, interaction: discord.Interaction, select: discord.ui.Select):
+    async def category_select_callback(self, interaction: discord.Interaction, select: discord.ui.Select):
         if interaction.user.id != self.author_id:
             await interaction.response.send_message("This is not your help menu!", ephemeral=True)
             return
@@ -122,7 +117,22 @@ class HelpView(View):
         
         # Update select options
         self.clear_items()
-        self.add_item(self.category_select)
+        
+        # Recreate select menu with current selection
+        new_select = Select(
+            placeholder="Select a category...",
+            min_values=1,
+            max_values=1,
+            row=0
+        )
+        
+        categories = self.get_categories()
+        for cat in categories:
+            new_select.add_option(label=cat, value=cat)
+        
+        new_select.callback = lambda interaction: self.category_select_callback(interaction, new_select)
+        self.category_select = new_select
+        self.add_item(new_select)
         self.add_item(self.back_button)
         self.add_item(self.home_button)
         
@@ -136,7 +146,22 @@ class HelpView(View):
 
         embed = await self.generate_help_embed()
         self.clear_items()
-        self.add_item(self.category_select)
+        
+        # Recreate select menu
+        select = Select(
+            placeholder="Select a category...",
+            min_values=1,
+            max_values=1,
+            row=0
+        )
+        
+        categories = self.get_categories()
+        for cat in categories:
+            select.add_option(label=cat, value=cat)
+        
+        select.callback = lambda interaction: self.category_select_callback(interaction, select)
+        self.category_select = select
+        self.add_item(select)
         
         await interaction.response.edit_message(embed=embed, view=self)
 
@@ -148,7 +173,22 @@ class HelpView(View):
 
         embed = await self.generate_help_embed()
         self.clear_items()
-        self.add_item(self.category_select)
+        
+        # Recreate select menu
+        select = Select(
+            placeholder="Select a category...",
+            min_values=1,
+            max_values=1,
+            row=0
+        )
+        
+        categories = self.get_categories()
+        for cat in categories:
+            select.add_option(label=cat, value=cat)
+        
+        select.callback = lambda interaction: self.category_select_callback(interaction, select)
+        self.category_select = select
+        self.add_item(select)
         
         await interaction.response.edit_message(embed=embed, view=self)
 
@@ -217,12 +257,16 @@ class Help(commands.Cog):
             placeholder="Select a category...",
             min_values=1,
             max_values=1,
+            row=0
         )
         
         for category in categories:
             select.add_option(label=category, value=category)
         
         view = HelpView(self.bot, ctx.author.id)
+        
+        # Set the callback for the select menu
+        select.callback = lambda interaction: view.category_select_callback(interaction, select)
         view.category_select = select
         
         embed = await view.generate_help_embed()

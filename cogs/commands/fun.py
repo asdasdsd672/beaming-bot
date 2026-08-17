@@ -11,7 +11,7 @@ class Fun(commands.Cog):
         self.giphy_api_key = "y3KcqQTdiS0RYcpNJrWn8hFGglKqX4is"
 
     async def red_footer(self, embed, ctx):
-        embed.set_footer(text="Zyrox Development™ Pro Mode", icon_url=ctx.author.avatar.url if ctx.author.avatar else ctx.author.default_avatar.url)
+        embed.set_footer(text="BeZmerz Development™", icon_url=ctx.author.avatar.url if ctx.author.avatar else ctx.author.default_avatar.url)
         embed.color = 0xFF0000
         return embed
 
