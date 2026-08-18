@@ -107,31 +107,41 @@ async def on_command_completion(context: commands.Context) -> None:
     full_command_name = context.command.qualified_name
     split = full_command_name.split("\n")
     executed_command = str(split[0])
-    webhook_url = "https://discord.com/api/webhooks/1393938120575029278/DZfp7Irx4oQprKZ1LjouSCZGKawEesXo4YMuIj7x5XspS24WTamTzKG4TqQan125_Qfw"
+    
+    # Get webhook URL from environment variable
+    webhook_url = os.getenv("COMMAND_LOG_WEBHOOK_URL")
+    
+    if not webhook_url:
+        return  # Skip logging if webhook not configured
+    
     async with aiohttp.ClientSession() as session:
-        webhook = discord.Webhook.from_url(webhook_url, session=session)
-
-        embed_color = 0xFF0000
-        embed = discord.Embed(color=embed_color)
-        avatar_url = context.author.display_avatar.url
-
-        embed.set_author(name=f"Cmd Executed: {executed_command}", icon_url=avatar_url)
-        embed.set_thumbnail(url=avatar_url)
-
-        if context.guild is not None:
-            embed.add_field(name="User", value=f"{context.author.mention} (`{context.author.id}`)", inline=False)
-            embed.add_field(name="Server", value=f"{context.guild.name} (`{context.guild.id}`)", inline=False)
-            embed.add_field(name="Channel", value=f"{context.channel.mention} (`{context.channel.id}`)", inline=False)
-        else:
-            embed.add_field(name="User (DM)", value=f"{context.author.mention} (`{context.author.id}`)", inline=False)
-        
-        embed.timestamp = discord.utils.utcnow()
-        embed.set_footer(text="BeZmerz Development™ ❤️", icon_url=client.user.display_avatar.url)
-        
         try:
+            webhook = discord.Webhook.from_url(webhook_url, session=session)
+
+            embed_color = 0xFF0000
+            embed = discord.Embed(color=embed_color)
+            avatar_url = context.author.display_avatar.url
+
+            embed.set_author(name=f"Cmd Executed: {executed_command}", icon_url=avatar_url)
+            embed.set_thumbnail(url=avatar_url)
+
+            if context.guild is not None:
+                embed.add_field(name="User", value=f"{context.author.mention} (`{context.author.id}`)", inline=False)
+                embed.add_field(name="Server", value=f"{context.guild.name} (`{context.guild.id}`)", inline=False)
+                embed.add_field(name="Channel", value=f"{context.channel.mention} (`{context.channel.id}`)", inline=False)
+            else:
+                embed.add_field(name="User (DM)", value=f"{context.author.mention} (`{context.author.id}`)", inline=False)
+            
+            embed.timestamp = discord.utils.utcnow()
+            embed.set_footer(text="BeZmerz Development™ ❤️", icon_url=client.user.display_avatar.url)
+            
             await webhook.send(embed=embed)
+        except discord.NotFound:
+            # Webhook was deleted - log once and disable further attempts
+            print('[WEBHOOK] Command log webhook not found (404). Please update COMMAND_LOG_WEBHOOK_URL environment variable.')
+            # Could set a flag here to disable future attempts if needed
         except Exception as e:
-            print(f'Command log webhook failed: {e}')
+            print(f'[WEBHOOK] Command log webhook failed: {e}')
 
 
 # --- Utility Commands ---
@@ -305,9 +315,11 @@ keep_alive()
 
 # --- Main Bot Execution ---
 async def main():
+    print("[BEZM BOT] Starting...")
     async with client:
         os.system("clear")
         await client.load_extension("jishaku")
+        print("[COGS] Loading...")
         
         max_retries = 5
         for attempt in range(max_retries):
@@ -317,7 +329,7 @@ async def main():
             except discord.HTTPException as e:
                 if e.status == 429: # Rate limited
                     wait_time = min((2 ** attempt) + random.random(), 60)
-                    print(f"Rate limited. Retrying in {wait_time:.2f} seconds...")
+                    print(f"[BEZM BOT] Rate limited. Retrying in {wait_time:.2f} seconds...")
                     await asyncio.sleep(wait_time)
                 else:
                     raise

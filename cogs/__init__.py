@@ -59,9 +59,9 @@ def _module_names() -> list[str]:
     # The help command must be registered after every discoverable command.
     modules.sort(key=lambda name: (name == "cogs.commands.help", name.lower()))
     
-    LOGGER.info(f"Total modules to load: {len(modules)}")
+    LOGGER.info(f"[COGS] Total modules to load: {len(modules)}")
     for mod in modules:
-        LOGGER.info(f"  - {mod}")
+        LOGGER.info(f"[COGS]   - {mod}")
     
     return modules
 
@@ -71,7 +71,7 @@ async def _load_module(bot: commands.Bot, module_name: str) -> dict[str, Any]:
     try:
         module = importlib.import_module(module_name)
     except Exception as exc:  # Optional integrations must not take down the bot.
-        LOGGER.exception("Could not import %s", module_name)
+        LOGGER.error(f"[COGS] Could not import {module_name}: {type(exc).__name__}: {exc}")
         report.update(status="failed", detail=f"Import error: {type(exc).__name__}")
         return report
 
@@ -79,8 +79,9 @@ async def _load_module(bot: commands.Bot, module_name: str) -> dict[str, Any]:
     if inspect.iscoroutinefunction(setup):
         try:
             await setup(bot)
+            LOGGER.info(f"[COGS] Loaded {module_name} via setup function")
         except Exception as exc:
-            LOGGER.exception("Could not initialise %s", module_name)
+            LOGGER.error(f"[COGS] Could not initialise {module_name}: {type(exc).__name__}: {exc}")
             report.update(status="failed", detail=f"Setup error: {type(exc).__name__}")
         else:
             report.update(status="loaded", detail="Extension setup completed")
@@ -95,6 +96,7 @@ async def _load_module(bot: commands.Bot, module_name: str) -> dict[str, Any]:
         and value is not commands.Cog
     ]
     if not classes:
+        LOGGER.debug(f"[COGS] No Cog classes found in {module_name}")
         return report
 
     loaded = 0
@@ -103,8 +105,9 @@ async def _load_module(bot: commands.Bot, module_name: str) -> dict[str, Any]:
         try:
             await bot.add_cog(cog_class(bot))
             loaded += 1
+            LOGGER.info(f"[COGS] Registered cog: {cog_class.__name__} from {module_name}")
         except Exception as exc:
-            LOGGER.exception("Could not register %s from %s", cog_class.__name__, module_name)
+            LOGGER.error(f"[COGS] Could not register {cog_class.__name__} from {module_name}: {type(exc).__name__}: {exc}")
             failures.append(f"{cog_class.__name__}: {type(exc).__name__}")
 
     if loaded:
@@ -116,6 +119,7 @@ async def _load_module(bot: commands.Bot, module_name: str) -> dict[str, Any]:
 
 async def setup(bot: commands.Bot) -> None:
     """Load each independently-loadable cog and publish the verified catalog."""
+    LOGGER.info("[COGS] Starting cog loading process...")
     reports: list[dict[str, Any]] = []
     for module_name in _module_names():
         reports.append(await _load_module(bot, module_name))
@@ -125,4 +129,11 @@ async def setup(bot: commands.Bot) -> None:
 
     loaded = sum(report["status"] == "loaded" for report in reports)
     failed = sum(report["status"] == "failed" for report in reports)
-    LOGGER.info("Cog loading finished: %d modules loaded, %d modules failed", loaded, failed)
+    skipped = sum(report["status"] == "skipped" for report in reports)
+    
+    LOGGER.info(f"[COGS] Cog loading finished: {loaded} modules loaded, {failed} modules failed, {skipped} modules skipped")
+    
+    # Print summary of failed modules
+    if failed > 0:
+        failed_modules = [r["module"] for r in reports if r["status"] == "failed"]
+        LOGGER.error(f"[COGS] Failed modules: {', '.join(failed_modules)}")
