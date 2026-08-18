@@ -22,6 +22,3 @@ pymongo
 motor
 gtts
 langdetect
-pyttsx3
-SpeechRecognition
-pyaudio
